@@ -1,0 +1,21 @@
+.button {
+  padding: 0.4rem;          /* from your login-button CSS */
+  border: none;
+  border-radius: 6px;
+  background-color: #00bba7;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #00a094; /* darker on hover */
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

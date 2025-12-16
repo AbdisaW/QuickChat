@@ -1,0 +1,58 @@
+{
+  "threads": [
+    {
+      "id": "chat1",
+      "participantId": "user456",
+      "participantName": "Alice Smith",
+      "participantAvatar": "https://i.pravatar.cc/150?img=10",
+      "lastMessage": "Hey! How are you?",
+      "lastMessageTime": "2024-11-18T10:30:00Z",
+      "unreadCount": 2,
+      "isOnline": true
+    },
+    {
+      "id": "chat2",
+      "participantId": "user789",
+      "participantName": "Bob Marley",
+      "participantAvatar": "https://i.pravatar.cc/150?img=11",
+      "lastMessage": "See you later!",
+      "lastMessageTime": "2024-11-17T08:20:00Z",
+      "unreadCount": 0,
+      "isOnline": false
+    },
+    {
+      "id": "chat3",
+      "participantId": "user101",
+      "participantName": "Charlie Brown",
+      "participantAvatar": "https://i.pravatar.cc/150?img=12",
+      "lastMessage": "Let's catch up soon.",
+      "lastMessageTime": "2024-11-19T12:15:00Z",
+      "unreadCount": 1,
+      "isOnline": true
+    },
+    {
+      "id": "chat4",
+      "participantId": "user102",
+      "participantName": "Diana Prince",
+      "participantAvatar": "https://i.pravatar.cc/150?img=13",
+      "lastMessage": "Meeting at 3 PM.",
+      "lastMessageTime": "2024-11-19T09:45:00Z",
+      "unreadCount": 0,
+      "isOnline": false
+    },
+    {
+      "id": "chat5",
+      "participantId": "user103",
+      "participantName": "Ethan Hunt",
+      "participantAvatar": "https://i.pravatar.cc/150?img=14",
+      "lastMessage": "Mission accomplished.",
+      "lastMessageTime": "2024-11-18T15:50:00Z",
+      "unreadCount": 3,
+      "isOnline": true
+    }
+    
+  
+    
+ 
+  ]
+}

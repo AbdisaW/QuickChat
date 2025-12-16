@@ -1,0 +1,114 @@
+import './ConversationArea.css';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState, AppDispatch } from '../../store/store';
+import { addMessage } from '../../store/slices/chatSlice';
+import type { Message } from '../../types/chat';
+
+function ConversationArea() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { activeChat, messages, threads } = useSelector((state: RootState) => state.chat);
+
+  const [input, setInput] = useState('');
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, activeChat]);
+
+  if (!activeChat) {
+    return (
+      <div className="conversation-area">
+        <div className="no-chat-wrapper">
+          <p className="no-chat-text">Select a conversation to start messaging</p>
+        </div>
+      </div>
+    );
+  }
+
+
+  const chatMessages = messages[activeChat] || [];
+  const thread = threads.find((t) => t.id === activeChat);
+
+  const handleSendMessage = (e: FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const newMessage: Message = {
+      id: `msg-${Date.now()}`,
+      senderId: 'user123', // current user ID
+      text: input,
+      timestamp: new Date().toISOString(),
+      status: 'sent',
+      type: 'text',
+    };
+
+    dispatch(addMessage({ chatId: activeChat, message: newMessage }));
+    setInput('');
+  };
+
+  return (
+    <div className="conversation-area">
+      {/* Header */}
+      <div className="conversation-header">
+        <img src={thread?.participantAvatar} className="chat-header-avatar" />
+        <div>
+          <h4>{thread?.participantName}</h4>
+          <span className="chat-status">{thread?.isOnline ? 'Online' : 'Offline'}</span>
+        </div>
+      </div>
+
+      {/* Chat body */}
+      {/* Chat body */}
+      <div className="chat-body">
+        {chatMessages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.senderId === 'user123' ? 'sent' : 'received'}`}
+          >
+            {/* Render based on type */}
+            {msg.type === 'text' && <span>{msg.text}</span>}
+            {msg.type === 'audio' && <audio controls src={msg.url} />}
+            {msg.type === 'video' && <video controls src={msg.url} width="200" />}
+            {msg.type === 'file' && (
+              <a href={msg.url} download>
+                {msg.text || 'Download File'}
+              </a>
+            )}
+
+            <span className="message-time">
+              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+        ))}
+        <div ref={chatEndRef} />
+      </div>
+
+
+      {/* Footer / input */}
+      <form className="chat-footer" onSubmit={handleSendMessage}>
+        <button type="button" className="footer-btn">😊</button>
+        <button type="button" className="footer-btn">📎</button>
+
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+
+        {/* Mic button */}
+        <button type="button" className="footer-btn">🎤</button>
+
+        {/* Send button */}
+        <button type="submit" className="footer-btn send-btn">Send</button>
+      </form>
+
+    </div>
+  );
+}
+
+export default ConversationArea;

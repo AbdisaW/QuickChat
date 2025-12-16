@@ -1,0 +1,20 @@
+{
+  "messages": [
+    {
+      "id": "msg1",
+      "senderId": "user789",
+      "text": "See you later!",
+      "timestamp": "2024-11-17T08:20:00Z",
+      "type": "text",
+      "status": "delivered"
+    },
+    {
+      "id": "msg2",
+      "senderId": "user123",
+      "text": "Bye!",
+      "timestamp": "2024-11-17T08:21:00Z",
+      "type": "text",
+      "status": "delivered"
+    }
+  ]
+}

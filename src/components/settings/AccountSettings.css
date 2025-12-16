@@ -1,0 +1,95 @@
+  .account-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+
+.account-settings h6 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+
+.account-settings .profile-section {
+  display: flex;
+  align-items: center;
+  /* gap: 1rem; */
+  position: relative;
+}
+
+.account-settings .profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+}
+
+.account-settings .camera-btn {
+  position: absolute;
+  left: 55px;          
+  bottom: 0px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: #00bba7;
+  /* color: #ea0f0f; */
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.account-settings p {
+  font-size: 0.85rem;
+  color: #555;
+  margin-left: 1rem;
+  
+}
+
+
+.account-settings label {
+  margin-top: 0px;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+
+.account-settings input {        
+  /* border: 1px solid #ccc; */
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  background-color: #f3f3f5;
+}
+
+.account-settings :focus{
+   box-shadow: 0 0 3px 3px rgb(186, 186, 188);
+}
+
+.account-settings input:disabled {
+  background-color: #eaeaea;
+  color: #777;
+}
+
+.account-settings .save-btn {
+  padding: 0.7rem 1rem;
+  width: 100%;
+  background-color: #00bba7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s ease-in-out;
+  margin-top: 0.5rem;
+}
+
+.account-settings .save-btn:hover {
+  background-color:  #00a393;
+}

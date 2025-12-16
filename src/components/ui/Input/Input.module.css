@@ -1,0 +1,29 @@
+/* Input.module.css */
+
+.input-field {
+  border-radius: 0.4rem;
+  border: none;
+  outline: none;
+  padding: 0.4rem;
+  margin-bottom: 1.2rem;
+  background-color: #f3f3f5;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.input-field::placeholder {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.input-field:focus {
+  box-shadow: 0 0 6px rgba(139, 140, 140, 0.5);
+}
+
+.input-label {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #141414;
+  margin-bottom: 0.2rem;
+  display: block;
+}

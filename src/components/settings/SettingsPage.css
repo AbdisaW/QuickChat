@@ -1,0 +1,36 @@
+.settings-page {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  width: 22%;
+  /* border-radius: 20px; */
+  /* min-height: 100%; */
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem; 
+  background: #ececf0;
+  border-radius: 3rem;   
+}
+
+.settings-tabs button {
+  border: none;          
+  background: transparent;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;  
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.settings-tabs button.active {
+  background: white;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  font-weight: 600;
+}
+
+
+
+.settings-content {
+  margin-top: 1rem;
+}

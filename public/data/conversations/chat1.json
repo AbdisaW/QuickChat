@@ -1,0 +1,140 @@
+{
+  "messages": [
+    {
+      "id": "msg1",
+      "senderId": "user456",
+      "text": "Hey! How are you?",
+      "timestamp": "2024-11-18T10:30:00Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg2",
+      "senderId": "user123",
+      "text": "Hi Alice! I'm good, how about you?",
+      "timestamp": "2024-11-18T10:32:00Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg3",
+      "senderId": "user456",
+      "text": "I'm doing well, thanks for asking!",
+      "timestamp": "2024-11-18T10:33:10Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg4",
+      "senderId": "user123",
+      "text": "Great to hear 🙂 What are you doing today?",
+      "timestamp": "2024-11-18T10:34:45Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg5",
+      "senderId": "user456",
+      "text": "Just working from home. Also trying to finish a project.",
+      "timestamp": "2024-11-18T10:36:20Z",
+      "type": "text",
+      "status": "delivered"
+    },
+    {
+      "id": "msg6",
+      "senderId": "user123",
+      "text": "Nice! What project are you working on?",
+      "timestamp": "2024-11-18T10:37:05Z",
+      "type": "text",
+      "status": "delivered"
+    },
+    {
+      "id": "msg7",
+      "senderId": "user456",
+      "text": "A small design portfolio. I want to update my website.",
+      "timestamp": "2024-11-18T10:38:50Z",
+      "type": "text",
+      "status": "delivered"
+    },
+    {
+      "id": "msg8",
+      "senderId": "user123",
+      "text": "Oh that's awesome! Let me know if you want feedback.",
+      "timestamp": "2024-11-18T10:40:12Z",
+      "type": "text",
+      "status": "sent"
+    },
+    {
+      "id": "msg9",
+      "senderId": "user456",
+      "text": "Sure! Maybe later today? 😊",
+      "timestamp": "2024-11-18T10:41:19Z",
+      "type": "text",
+      "status": "sent"
+    },
+    {
+      "id": "msg10",
+      "senderId": "user123",
+      "text": "Absolutely, just send it whenever you're ready!",
+      "timestamp": "2024-11-18T10:42:50Z",
+      "type": "text",
+      "status": "sent"
+    },
+    {
+      "id": "msg11",
+      "senderId": "user456",
+      "text": "Thank you! By the way, did you watch the game last night?",
+      "timestamp": "2024-11-18T10:46:00Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg12",
+      "senderId": "user123",
+      "text": "YES! It was crazy 😂 Can't believe they scored in the final minute.",
+      "timestamp": "2024-11-18T10:46:50Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg13",
+      "senderId": "user456",
+      "text": "I know right! I literally screamed 😆",
+      "timestamp": "2024-11-18T10:48:15Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg14",
+      "senderId": "user123",
+      "text": "Same here haha. Did you support the winning team?",
+      "timestamp": "2024-11-18T10:49:55Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg15",
+      "senderId": "user456",
+      "text": "Yep! I've been a fan for years 🔥",
+      "timestamp": "2024-11-18T10:51:20Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg16",
+      "senderId": "user123",
+      "text": "Same here 😂 We're officially the same team now.",
+      "timestamp": "2024-11-18T10:53:00Z",
+      "type": "text",
+      "status": "read"
+    },
+    {
+      "id": "msg17",
+      "senderId": "user456",
+      "text": "Haha yes! Team buddies 🎉",
+      "timestamp": "2024-11-18T10:54:42Z",
+      "type": "text",
+      "status": "read"
+    }
+  ]
+}
