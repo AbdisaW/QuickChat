@@ -1,22 +1,41 @@
+// src/components/conversation/ConversationArea.tsx
 import './ConversationArea.css';
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/store';
 import { addMessage } from '../../store/slices/chatSlice';
 import type { Message } from '../../types/chat';
+import { io, type Socket } from 'socket.io-client';
+
+let socket: Socket;
 
 function ConversationArea() {
   const dispatch = useDispatch<AppDispatch>();
   const { activeChat, messages, threads } = useSelector((state: RootState) => state.chat);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const [input, setInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Initialize Socket.IO once
+  useEffect(() => {
+    if (!socket) {
+      socket = io('http://localhost:4002'); // your backend URL
+      if (user?.id) socket.emit('join', user.id);
+
+      socket.on('receive_message', (msg: Message) => {
+        dispatch(addMessage({ chatId: msg.conversationId, message: msg }));
+      });
+    }
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [dispatch, user?.id]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages, activeChat]);
 
   if (!activeChat) {
@@ -29,24 +48,34 @@ function ConversationArea() {
     );
   }
 
-
   const chatMessages = messages[activeChat] || [];
   const thread = threads.find((t) => t.id === activeChat);
 
   const handleSendMessage = (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !user) return;
 
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
-      senderId: 'user123', // current user ID
+      senderId: user.id,
+      conversationId: activeChat,
       text: input,
       timestamp: new Date().toISOString(),
       status: 'sent',
       type: 'text',
     };
 
+    // Dispatch to Redux
     dispatch(addMessage({ chatId: activeChat, message: newMessage }));
+
+    // Send via Socket.IO
+    socket.emit('send_message', {
+      from: user.id,
+      to: thread?.participantId, // make sure thread has participantId
+      text: input,
+      conversationId: activeChat,
+    });
+
     setInput('');
   };
 
@@ -62,14 +91,12 @@ function ConversationArea() {
       </div>
 
       {/* Chat body */}
-      {/* Chat body */}
       <div className="chat-body">
         {chatMessages.map((msg) => (
           <div
             key={msg.id}
-            className={`message ${msg.senderId === 'user123' ? 'sent' : 'received'}`}
+            className={`message ${msg.senderId === user?.id ? 'sent' : 'received'}`}
           >
-            {/* Render based on type */}
             {msg.type === 'text' && <span>{msg.text}</span>}
             {msg.type === 'audio' && <audio controls src={msg.url} />}
             {msg.type === 'video' && <video controls src={msg.url} width="200" />}
@@ -78,7 +105,6 @@ function ConversationArea() {
                 {msg.text || 'Download File'}
               </a>
             )}
-
             <span className="message-time">
               {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
@@ -87,26 +113,19 @@ function ConversationArea() {
         <div ref={chatEndRef} />
       </div>
 
-
       {/* Footer / input */}
       <form className="chat-footer" onSubmit={handleSendMessage}>
         <button type="button" className="footer-btn">😊</button>
         <button type="button" className="footer-btn">📎</button>
-
         <input
           type="text"
           placeholder="Type a message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-
-        {/* Mic button */}
         <button type="button" className="footer-btn">🎤</button>
-
-        {/* Send button */}
         <button type="submit" className="footer-btn send-btn">Send</button>
       </form>
-
     </div>
   );
 }

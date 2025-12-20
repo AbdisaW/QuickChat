@@ -13,6 +13,7 @@ export interface ChatThread {
 }
 
 export interface Message {
+  conversationId: string;
   id: string;
   senderId: string;
   text?: string;

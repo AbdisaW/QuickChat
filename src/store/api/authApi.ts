@@ -4,9 +4,11 @@ import type { RootState } from '../store';
 
 export interface LoginResponseItem {
   success: 200;
- "message": "Login successful",
- "user": User
+  message: string;
+  user: User;
+  token: string;
 }
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
@@ -19,21 +21,48 @@ export const authApi = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
- 
-    login: builder.mutation<
-      LoginResponseItem, 
-      { email: string; password: string }
-    >({
+    login: builder.mutation<LoginResponseItem, { email: string; password: string }>({
       query: (body) => ({
-        url: 'http://localhost:3000/api/auth/login',
+        url: 'http://localhost:4000/api/auth/login',
         method: 'POST',
-        body
+        body,
       }),
     }),
 
-  
+    register: builder.mutation<
+      { success: boolean; message: string },
+      { firstName: string; lastName: string; email: string; password: string }
+    >({
+      query: (body) => ({
+        url: 'http://localhost:4000/api/auth/register',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    verifyOtp: builder.mutation<
+      { message: string },
+      { email: string; otp: string }
+    >({
+      query: (body) => ({
+        url: 'http://localhost:4000/api/auth/verify-otp',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    resendOtp: builder.mutation<
+      { message: string },
+      { email: string }
+    >({
+      query: (body) => ({
+        url: 'http://localhost:4000/api/auth/re-send',
+        method: 'POST',
+        body,
+      }),
+    }),
+
     getCurrentUser: builder.query<LoginResponse, void>({
       query: () => ({
         url: 'data/auth.json',
@@ -43,15 +72,24 @@ export const authApi = createApi({
 
     logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({
-        url: 'data/logout.json',
+        url: 'http://localhost:4000/api/auth/logout',
         method: 'POST',
       }),
     }),
 
+    uploadProfilePicture: builder.mutation<{ message: string; fileUrl: string }, FormData>({
+      query: (formData) => ({
+        url: 'http://localhost:4000/api/profile/profile-picture',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
     updateProfile: builder.mutation<LoginResponse, Partial<User>>({
-      query: () => ({
-        url: 'data/auth.json',
-        method: 'GET',
+      query: (body) => ({
+        url: 'http://localhost:4000/api/auth/user',
+        method: 'PUT',
+        body,
       }),
     }),
   }),
@@ -59,7 +97,11 @@ export const authApi = createApi({
 
 export const {
   useLoginMutation,
+  useRegisterMutation,
+  useVerifyOtpMutation,
+  useResendOtpMutation,
   useGetCurrentUserQuery,
   useLogoutMutation,
+  useUploadProfilePictureMutation,
   useUpdateProfileMutation,
 } = authApi;

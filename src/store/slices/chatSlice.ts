@@ -1,39 +1,62 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { ChatState, ChatThread, Message } from '../../types/chat';
+import type { RootState } from '../store';
 
-export const fetchChatThreads = createAsyncThunk<ChatThread[], void, { rejectValue: string }>(
+export const fetchChatThreads = createAsyncThunk<ChatThread[], void, { state: any; rejectValue: string }>(
   'chat/fetchThreads',
   async (_, thunkAPI) => {
     try {
-      const res = await fetch('/data/chatThreads.json');
-      if (!res.ok) throw new Error('Network error');
-      const json = await res.json();
-      return json.threads as ChatThread[];
+      const state = thunkAPI.getState();
+      const userId = state.auth.user?.id;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+      const res = await fetch(`http://localhost:4002/api/conversations?userId=${userId}`,{
+         headers: {
+            Authorization: `Bearer ${state.auth.token}`,
+          },
+      });
+      if (!res.ok) throw new Error('Failed to load conversations');
+
+      const data = await res.json();
+
+      return data.conversations.map((c: any) => ({
+        id: c._id,
+        participantId:
+          c.lastMessage.from === userId ? c.lastMessage.to : c.lastMessage.from,
+        participantName:
+          c.lastMessage.from === userId ? c.lastMessage.to : c.lastMessage.from,
+        participantAvatar: '',
+        lastMessage: c.lastMessage.text,
+        lastMessageTime: c.lastMessage.createdAt,
+        unreadCount: c.lastMessage.read ? 0 : 1,
+      }));
     } catch (err: any) {
       return thunkAPI.rejectWithValue(err.message || 'Failed to load threads');
     }
   }
 );
 
-export const fetchChatMessages = createAsyncThunk<
-  { chatId: string; messages: Message[] },
-  string,
-  { rejectValue: string }
->('chat/fetchMessages', async (chatId, thunkAPI) => {
-  try {
-    const res = await fetch(`/data/conversations/${chatId}.json`);
-    if (!res.ok) {
-      const res2 = await fetch('/data/conversations.json');
-      if (!res2.ok) throw new Error('Not found');
-      const json2 = await res2.json();
-      return { chatId, messages: json2[chatId] || [] };
-    }
+export const fetchChatMessages = createAsyncThunk(
+  'chat/fetchMessages',
+  async (otherUserId: string, thunkAPI) => {
+    const state = thunkAPI.getState() as RootState;
+    const myUserId = state.auth.user.id;
+
+    const res = await fetch(
+      `http://localhost:4002/api/conversations/${myUserId}/${otherUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${state.auth.token}`,
+        },
+      }
+    );
+
     const data = await res.json();
-    return { chatId, messages: data.messages || [] };
-  } catch (err: any) {
-    return thunkAPI.rejectWithValue(err.message || 'Failed to fetch messages');
+    return { chatId: otherUserId, messages: data.conversation };
   }
-});
+);
+
 
 const initialState: ChatState = {
   threads: [],

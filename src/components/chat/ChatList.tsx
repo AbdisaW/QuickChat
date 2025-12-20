@@ -1,30 +1,30 @@
 import SearchIcon from '../../assets/images/icons/SearchIcon';
 import ChatItem from './ChatItem';
 import SettingsPage from '../settings/SettingsPage';
-import './ChatList.css'
+import './ChatList.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { fetchChatMessages, fetchChatThreads, setActiveChat } from '../../store/slices/chatSlice';
+import { fetchChatThreads, fetchChatMessages, setActiveChat } from '../../store/slices/chatSlice';
 import type { AppDispatch, RootState } from '../../store/store';
 import type { ChatThread } from '../../types/chat';
 
 interface ChatListProps {
-  activeMenu: string;
+  activeMenu: 'chats' | 'settings'; // strictly typed
 }
 
 function ChatList({ activeMenu }: ChatListProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const { threads, loading } = useSelector((state: any) => state.chat);
-  const activeChat = useSelector((state: RootState) => state.chat.activeChat);
+  const { threads, loading, activeChat } = useSelector((state: RootState) => state.chat);
 
+  // Fetch threads only if we're on the chat menu
   useEffect(() => {
-    if (activeMenu === "chats") {
+    if (activeMenu === 'chats') {
       dispatch(fetchChatThreads());
-
     }
   }, [activeMenu, dispatch]);
 
-  if (activeMenu === "settings") {
+  // Render settings page if selected
+  if (activeMenu === 'settings') {
     return <SettingsPage />;
   }
 
@@ -46,19 +46,20 @@ function ChatList({ activeMenu }: ChatListProps) {
       {threads.map((item: ChatThread) => (
         <ChatItem
           key={item.id}
-          avatar={item.participantAvatar || ''}
-          name={item.participantName || ' '}
+          avatar={item.participantAvatar || '/default-avatar.png'}
+          name={item.participantName || 'Unknown'}
           lastMessage={item.lastMessage || ''}
           time={item.lastMessageTime}
-          unreadCount={item.unreadCount}
+          unreadCount={item.unreadCount || 0}
+          isActive={activeChat === item.id}
           onClick={() => {
             dispatch(setActiveChat(item.id));
-            dispatch(fetchChatMessages(item.id));
+            dispatch(fetchChatMessages(item.participantId));
           }}
         />
       ))}
-
     </div>
   );
 }
+
 export default ChatList;
