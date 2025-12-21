@@ -5,7 +5,7 @@ import ConversationArea from '../../../components/conversation/ConversationArea'
 import { useState } from 'react';
 
 function DashboardPage() {
-  const [activeMenu, setActiveMenu] = useState("chats");
+    const [activeMenu, setActiveMenu] = useState<'chats' | 'contacts' | 'settings'>('chats');
 
   return (
     <div className="dashboard-page">

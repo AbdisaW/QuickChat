@@ -1,7 +1,10 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import chatReducer from './slices/chatSlice';
+import presenceReducer from './slices/presenceSlice';
 import { authApi } from './api/authApi';
+import { chatApi } from './api/chatApi';
+
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import localForage from 'localforage';
 
@@ -11,14 +14,17 @@ const chatPersistConfig = { key: 'chat', storage: localForage, whitelist: ['mess
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   chat: persistReducer(chatPersistConfig, chatReducer),
-  [authApi.reducerPath]: authApi.reducer, // ✅ add reducer
+  presence: presenceReducer, // ✅ add presence slice here
+  [authApi.reducerPath]: authApi.reducer, 
+  [chatApi.reducerPath]: chatApi.reducer,
 });
 
 export const store = configureStore({
   reducer: persistReducer({ key: 'root', storage: localForage }, rootReducer),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: { ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER] } })
-      .concat(authApi.middleware), // ✅ add middleware
+      .concat(authApi.middleware)
+      .concat(chatApi.middleware),
 });
 
 export const persistor = persistStore(store);

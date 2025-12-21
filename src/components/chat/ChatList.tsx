@@ -5,59 +5,85 @@ import './ChatList.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchChatThreads, fetchChatMessages, setActiveChat } from '../../store/slices/chatSlice';
+import { useGetUsersQuery } from '../../store/api/authApi';
 import type { AppDispatch, RootState } from '../../store/store';
 import type { ChatThread } from '../../types/chat';
+import type { User } from '../../types/auth';
 
 interface ChatListProps {
-  activeMenu: 'chats' | 'settings'; // strictly typed
+  activeMenu: 'chats' | 'contacts' | 'settings';
 }
 
 function ChatList({ activeMenu }: ChatListProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { threads, loading, activeChat } = useSelector((state: RootState) => state.chat);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const users = useSelector((state: RootState) => state.auth.users);
 
-  // Fetch threads only if we're on the chat menu
+  // Fetch chat threads for "chats"
   useEffect(() => {
-    if (activeMenu === 'chats') {
-      dispatch(fetchChatThreads());
-    }
+    if (activeMenu === 'chats') dispatch(fetchChatThreads());
   }, [activeMenu, dispatch]);
 
-  // Render settings page if selected
-  if (activeMenu === 'settings') {
-    return <SettingsPage />;
-  }
+  const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
+
+  if (activeMenu === 'settings') return <SettingsPage />;
+
+  const handleClick = (userId: string) => {
+    dispatch(setActiveChat(userId));
+    dispatch(fetchChatMessages(userId));
+  };
+
+  const getUserFullName = (user?: User) => user ? `${user.firstName} ${user.lastName}` : 'Unknown';
 
   return (
     <div className="chat-list">
-      <h6 className="chat-header">Messages</h6>
+      <h6 className="chat-header">{activeMenu === 'chats' ? 'Messages' : 'Contacts'}</h6>
 
       <div className="chat-search">
         <SearchIcon className="search-icon" />
         <input
           type="text"
-          placeholder="Search conversations..."
+          placeholder={`Search ${activeMenu === 'chats' ? 'conversations' : 'contacts'}...`}
           className="search-input"
         />
       </div>
 
-      {loading && <p>Loading chats...</p>}
+      <div className="chat-items-container">
+        {(loading || usersLoading) && <p>Loading...</p>}
 
-      {threads.map((item: ChatThread) => (
-        <ChatItem
-          key={item.id}
-          avatar={item.participantAvatar || '/default-avatar.png'}
-          name={item.participantName || 'Unknown'}
-          lastMessage={item.lastMessage || ''}
-          time={item.lastMessageTime}
-          unreadCount={item.unreadCount || 0}
-          isActive={activeChat === item.id}
-          onClick={() => {
-            dispatch(setActiveChat(item.id));
-            dispatch(fetchChatMessages(item.participantId));
-          }}
-        />
-      ))}
+        {/* Chats */}
+        {activeMenu === 'chats' &&
+          threads.map((thread: ChatThread) => {
+            const contact = users?.find(u => u.id === thread.participantId) || allUsers?.find(u => u.id === thread.participantId);
+            return (
+              <ChatItem
+                key={thread.id}
+                avatar={contact?.profilePicture || '/default-avatar.png'}
+                name={getUserFullName(contact)}
+                lastMessage={thread.lastMessage || ''}
+                time={thread.lastMessageTime}
+                unreadCount={thread.unreadCount || 0}
+                isActive={activeChat === thread.id}
+                onClick={() => handleClick(thread.participantId!)}
+              />
+            );
+          })}
+
+        {/* Contacts */}
+        {activeMenu === 'contacts' &&
+          (allUsers || []).filter(u => u.id !== currentUser?.id).map(user => (
+            <ChatItem
+              key={user.id}
+              avatar={user.profilePicture || '/default-avatar.png'}
+              name={getUserFullName(user)}
+              lastMessage=""
+              time=""
+              isActive={activeChat === user.id}
+              onClick={() => handleClick(user.id)}
+            />
+          ))}
+      </div>
     </div>
   );
 }

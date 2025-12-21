@@ -77,7 +77,7 @@ export const authApi = createApi({
       }),
     }),
 
-    uploadProfilePicture: builder.mutation<{ message: string; fileUrl: string }, FormData>({
+    uploadProfilePicture: builder.mutation<{ message: string; publicFileUrl: string }, FormData>({
       query: (formData) => ({
         url: 'http://localhost:4000/api/profile/profile-picture',
         method: 'POST',
@@ -92,6 +92,14 @@ export const authApi = createApi({
         body,
       }),
     }),
+
+    getUsers: builder.query<any[], void>({
+      query: () => ({
+        url: "http://localhost:4000/api/auth/users",
+        method: "GET",
+      }),
+      transformResponse: (res: any) => res.users,
+    }),
   }),
 });
 
@@ -104,4 +112,5 @@ export const {
   useLogoutMutation,
   useUploadProfilePictureMutation,
   useUpdateProfileMutation,
+ useGetUsersQuery,
 } = authApi;

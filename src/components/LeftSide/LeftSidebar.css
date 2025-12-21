@@ -48,8 +48,9 @@
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   padding-left: 1rem;
+  margin-bottom: 2rem;
   cursor: pointer;
   border-radius: 7px;
   transition: justify-content 0.25s ease;

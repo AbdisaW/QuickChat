@@ -1,37 +1,40 @@
-
-
-
+/* ChatList.css */
 .chat-list {
   width: 25%;
-  background-color: #f9f9f9;
-  padding: 1rem;
+  background-color: #fff;
   border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .chat-header {
+  font-weight: 600;
+  font-size: 14px;
   margin-bottom: 1rem;
-  font-weight: bold;
-  font-size: 13px;
+  color: #333;
 }
 
 .chat-search {
   position: relative;
   margin-bottom: 1rem;
-  
 }
 
 .search-input {
   width: 90%;
-  padding: 0.5rem 0rem 0.5rem 2rem;
+  padding: 0.5rem 0.5rem 0.5rem 2rem;
   border-radius: 0.4rem;
   outline: none;
   border: 1px solid #ccc;
   background-color: #f3f3f5;
-  font-size: 12px;
+  font-size: 13px;
+  transition: all 0.2s;
 }
 
 .search-input:focus {
-  box-shadow: 0 0 3px 3px rgb(186, 186, 188);
+  border-color: #00bba7;
+  box-shadow: 0 0 5px rgba(0, 187, 167, 0.3);
 }
 
 .search-icon {
@@ -43,4 +46,20 @@
   color: #999;
   width: 16px;
   height: 16px;
+}
+
+.chat-items-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  padding-right: 4px;
+}
+
+.chat-items-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-items-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
 }

@@ -1,3 +1,4 @@
+// src/store/api/chatApi.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { ChatThread, Message } from '../../types/chat';
 import type { RootState } from '../store';
@@ -5,7 +6,7 @@ import type { RootState } from '../store';
 export const chatApi = createApi({
   reducerPath: 'chatApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/',
+    baseUrl: 'http://localhost:4002/api',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) headers.set('authorization', `Bearer ${token}`);
@@ -13,32 +14,43 @@ export const chatApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getChatThreads: builder.query<{ success: boolean; data: ChatThread[] }, void>({
-      query: () => ({ url: 'data/chatThreads.json', method: 'GET' }),
-      transformResponse(base: any) {
-        return { success: true, data: base.threads || [] };
-      },
+    getChatThreads: builder.query<ChatThread[], void>({
+      query: () => `/conversations?userId=${localStorage.getItem('userId')}`,
+      transformResponse: (res: any) =>
+        res.conversations.map((c: any) => {
+          const lastMessage = c.lastMessage;
+          return {
+            id: c._id,
+            participantId: lastMessage.from === localStorage.getItem('userId') ? lastMessage.to : lastMessage.from,
+            participantName: c.participantName || 'Unknown',
+            participantAvatar: c.participantAvatar || '/default-avatar.png',
+            lastMessage: lastMessage.text,
+            lastMessageTime: lastMessage.createdAt,
+            unreadCount: lastMessage.read ? 0 : 1,
+          };
+        }),
     }),
-    getChatMessages: builder.query<{ success: boolean; data: Message[] }, string>({
-      query: (chatId) => ({ url: `data/conversations/${chatId}.json`, method: 'GET' }),
-      transformResponse(base: any) {
-        return { success: true, data: base.messages || [] };
-      },
+    getChatMessages: builder.query<Message[], string>({
+      query: (otherUserId) => `/conversations/${localStorage.getItem('userId')}/${otherUserId}`,
+      transformResponse: (res: any) => res.conversation || [],
     }),
-    sendMessage: builder.mutation<Message, { chatId: string; payload: Partial<Message> }>({
-      query: ({ chatId, payload }) => ({ url: `data/conversations/${chatId}.json`, method: 'POST', body: payload }),
+    sendMessage: builder.mutation<Message, { to: string; text: string }>({
+      query: ({ to, text }) => ({ url: '/messages', method: 'POST', body: { to, text } }),
     }),
-    markAsRead: builder.mutation<{ success: boolean }, string>({
-      query: (chatId) => ({ url: `data/chats/${chatId}/read`, method: 'PUT' }),
+    markAsRead: builder.mutation<{ success: boolean }, { user1: string; user2: string }>({
+      query: ({ user1, user2 }) => ({ url: `/conversations/${user1}/${user2}/read`, method: 'PUT' }),
     }),
-    searchChats: builder.query<{ success: boolean; data: ChatThread[] }, string>({
-      query: (q) => ({ url: `data/chatThreads.json?q=${encodeURIComponent(q)}`, method: 'GET' }),
-    }),
-    getUserContacts: builder.query<{ success: boolean; data: any[] }, void>({
-      query: () => ({ url: 'data/contacts.json', method: 'GET' }),
+    getUserContacts: builder.query<ChatThread[], void>({
+      query: () => '/users',
+      transformResponse: (res: any) => res.users || [],
     }),
   }),
 });
 
-export const { useGetChatThreadsQuery, useGetChatMessagesQuery, useSendMessageMutation, useMarkAsReadMutation, useSearchChatsQuery, useGetUserContactsQuery } =
-  chatApi;
+export const {
+  useGetChatThreadsQuery,
+  useGetChatMessagesQuery,
+  useSendMessageMutation,
+  useMarkAsReadMutation,
+  useGetUserContactsQuery,
+} = chatApi;
