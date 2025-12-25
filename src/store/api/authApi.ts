@@ -63,12 +63,12 @@ export const authApi = createApi({
       }),
     }),
 
-    getCurrentUser: builder.query<LoginResponse, void>({
-      query: () => ({
-        url: 'data/auth.json',
-        method: 'GET',
-      }),
-    }),
+    // getCurrentUser: builder.query<LoginResponse, void>({
+    //   query: () => ({
+    //     url: 'data/auth.json',
+    //     method: 'GET',
+    //   }),
+    // }),
 
     logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({
@@ -77,7 +77,7 @@ export const authApi = createApi({
       }),
     }),
 
-    uploadProfilePicture: builder.mutation<{ message: string; publicFileUrl: string }, FormData>({
+    uploadProfilePicture: builder.mutation<{ message: string; fileUrl: string }, FormData>({
       query: (formData) => ({
         url: 'http://localhost:4000/api/profile/profile-picture',
         method: 'POST',

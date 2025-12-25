@@ -43,7 +43,7 @@ function AccountSettings() {
       const response = await uploadProfilePicture(formData).unwrap();
 
       // Use `publicFileUrl` returned from backend
-      dispatch(updateUserProfile({ avatar: response.publicFileUrl }));
+      dispatch(updateUserProfile({ profilePicture: response.fileUrl }));
     } catch (err) {
       console.error("Upload failed:", err);
     }
@@ -60,7 +60,7 @@ function AccountSettings() {
 
       <div className="profile-section">
         <img
-          src={user?.avatar || "/default-avatar.png"}
+          src={user?.profilePicture || "/default-avatar.png"}
           className="profile-avatar"
           alt="Profile"
         />

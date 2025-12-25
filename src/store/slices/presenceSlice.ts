@@ -1,4 +1,4 @@
-import { createSlice,type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface PresenceState {
   onlineUsers: string[];
@@ -23,8 +23,12 @@ const presenceSlice = createSlice({
     clearTyping: (state, action: PayloadAction<string>) => {
       state.typingUsers = state.typingUsers.filter(id => id !== action.payload);
     },
+    resetPresence: (state) => {
+      state.onlineUsers = [];
+      state.typingUsers = [];
+    }
   },
 });
 
-export const { userOnline, userOffline, setTyping, clearTyping } = presenceSlice.actions;
+export const { userOnline, userOffline, setTyping, clearTyping, resetPresence } = presenceSlice.actions;
 export default presenceSlice.reducer;

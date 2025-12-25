@@ -1,9 +1,13 @@
 import { useState } from "react";
 import MessageIcon from "../../assets/images/icons/MessageIcon";
+import ContactIcon from "../../assets/images/icons/ContactIcon"
 import SettingsIcon from "../../assets/images/icons/SettingsIcon";
 import LogoutIcon from "../../assets/images/icons/LogoutIcon";
 import leftIcon from "../../assets/images/icons/chevron-left.svg";
 import "./LeftSidebar.css";
+import { resetPresence } from '../../store/slices/presenceSlice';
+import { chatApi } from '../../store/api/chatApi';
+import { authApi } from '../../store/api/authApi';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../../store/api/authApi";
@@ -30,9 +34,16 @@ function LeftSidebar({ setActiveMenu }: LeftSidebarProps) {
     } catch (e) {
       console.log("Logout API error (ignored for demo)", e);
     }
+    dispatch(chatApi.util.resetApiState());
+    dispatch(authApi.util.resetApiState());
+
+    // 🔥 CLEAR REDUX STATE
     dispatch(clearChatState());
+    dispatch(resetPresence());
     dispatch(logout());
-    navigate("/");
+
+
+    navigate('/');
   };
 
   return (
@@ -61,7 +72,7 @@ function LeftSidebar({ setActiveMenu }: LeftSidebarProps) {
           className="menu-item"
           onClick={() => setActiveMenu("contacts")}
         >
-          <MessageIcon color="#20202f" width={15} height={15} />
+          <ContactIcon color="#20202f" width={15} height={15} />
           <h6>Contacts</h6>
         </div>
 

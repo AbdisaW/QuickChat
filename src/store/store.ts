@@ -14,7 +14,7 @@ const chatPersistConfig = { key: 'chat', storage: localForage, whitelist: ['mess
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   chat: persistReducer(chatPersistConfig, chatReducer),
-  presence: presenceReducer, // ✅ add presence slice here
+  presence: presenceReducer, 
   [authApi.reducerPath]: authApi.reducer, 
   [chatApi.reducerPath]: chatApi.reducer,
 });
