@@ -3,10 +3,7 @@ import './ConversationArea.css';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/store';
-import {
-  addMessage,
-  updateMessageStatus,
-} from '../../store/slices/chatSlice';
+import { addMessage, updateMessageStatus } from '../../store/slices/chatSlice';
 import {
   userOnline,
   userOffline,
@@ -35,7 +32,6 @@ function ConversationArea() {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
-  // 🔹 Typing refs (IMPORTANT)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingToRef = useRef<string | null>(null);
   const isTypingRef = useRef(false);
@@ -51,53 +47,33 @@ function ConversationArea() {
 
     socketRef.current = socket;
 
-    socket.on('connect', () => {
-      console.log('Socket connected:', socket.id);
-    });
-
-    socket.on('connect_error', (err: any) => {
-      console.error('Socket connection error:', err.message);
-    });
-
-    // 🔹 Initial presence sync
+    // PRESENCE
     socket.on('online_users', (users: string[]) => {
       dispatch(resetPresence());
-      users.forEach(id => dispatch(userOnline(id)));
+      users.forEach((id) => dispatch(userOnline(id)));
     });
 
-    // 🔹 Presence updates
-    socket.on('user_online', (userId: string) =>
-      dispatch(userOnline(userId))
-    );
-    socket.on('user_offline', (userId: string) =>
-      dispatch(userOffline(userId))
-    );
+    socket.on('user_online', (id: string) => dispatch(userOnline(id)));
+    socket.on('user_offline', (id: string) => dispatch(userOffline(id)));
 
-    // 🔹 Typing
-    socket.on('typing', ({ from }: { from: string }) =>
-      dispatch(setTyping(from))
-    );
-    socket.on('stop_typing', ({ from }: { from: string }) =>
-      dispatch(clearTyping(from))
-    );
+    // TYPING
+    socket.on('typing', ({ from }) => dispatch(setTyping(from)));
+    socket.on('stop_typing', ({ from }) => dispatch(clearTyping(from)));
 
-    // 🔹 Messages
+    // RECEIVE MESSAGE
     socket.on('receive_message', (msg: Message) => {
       dispatch(addMessage({ chatId: msg.conversationId, message: msg }));
-
-      if (msg.from !== user.id) {
-        dispatch(
-          updateMessageStatus({
-            chatId: msg.conversationId,
-            messageId: msg.id,
-            status: 'read',
-          })
-        );
-      }
     });
 
+    // MESSAGE STATUS UPDATE (delivered / read)
     socket.on('message_seen', ({ chatId, messageId }) => {
-      dispatch(updateMessageStatus({ chatId, messageId, status: 'read' }));
+      dispatch(
+        updateMessageStatus({
+          chatId,
+          messageId,
+          status: 'read',
+        })
+      );
     });
 
     return () => {
@@ -106,89 +82,49 @@ function ConversationArea() {
     };
   }, [user, token, dispatch]);
 
+  // ================= MARK READ ON CHAT OPEN =================
+  useEffect(() => {
+    if (!socketRef.current || !activeChat || !user) return;
+
+    const unreadMessages = (messages[activeChat] || []).filter(
+      (msg) => msg.from !== user.id && msg.status !== 'read'
+    );
+
+    unreadMessages.forEach((msg) => {
+      socketRef.current!.emit('message_seen', {
+        messageId: msg._id,
+      });
+
+      dispatch(
+        updateMessageStatus({
+          chatId: activeChat,
+          messageId: msg._id,
+          status: 'read',
+        })
+      );
+    });
+  }, [activeChat, messages, user, dispatch]);
+
   // ================= AUTO SCROLL =================
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, activeChat]);
 
-  // ================= STOP TYPING ON CHAT CHANGE =================
-  useEffect(() => {
-    if (!socketRef.current) return;
-
-    if (typingToRef.current) {
-      socketRef.current.emit('stop_typing', {
-        to: typingToRef.current,
-      });
-      isTypingRef.current = false;
-      typingToRef.current = null;
-    }
-  }, [activeChat]);
-
-  // ================= CLEANUP =================
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      if (socketRef.current && typingToRef.current) {
-        socketRef.current.emit('stop_typing', {
-          to: typingToRef.current,
-        });
-      }
-    };
-  }, []);
-
-  // ================= UI LOGIC =================
-  if (!activeChat) {
-    return (
-      <div className="conversation-area no-chat-wrapper">
-        <p className="no-chat-text">Select a conversation</p>
-      </div>
-    );
-  }
-
-  const chatMessages = messages[activeChat] || [];
-  const contact = users.find(u => u.id === activeChat);
-  const name = contact
-    ? `${contact.firstName} ${contact.lastName}`
-    : 'Unknown';
-
-  const isOnline = presence.onlineUsers.includes(activeChat);
-  const isTyping = presence.typingUsers.includes(activeChat);
-
   // ================= INPUT =================
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
-
     if (!socketRef.current || !activeChat) return;
 
-    // Stop typing in previous chat
-    if (typingToRef.current && typingToRef.current !== activeChat) {
-      socketRef.current.emit('stop_typing', {
-        to: typingToRef.current,
-      });
-      isTypingRef.current = false;
-    }
-
-    typingToRef.current = activeChat;
-
-    // Emit typing once
     if (!isTypingRef.current) {
       socketRef.current.emit('typing', { to: activeChat });
       isTypingRef.current = true;
+      typingToRef.current = activeChat;
     }
 
-    // Debounce stop
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
-      if (socketRef.current && typingToRef.current) {
-        socketRef.current.emit('stop_typing', {
-          to: typingToRef.current,
-        });
-      }
+      socketRef.current?.emit('stop_typing', { to: activeChat });
       isTypingRef.current = false;
       typingToRef.current = null;
     }, 800);
@@ -204,35 +140,47 @@ function ConversationArea() {
       text: input,
     });
 
-    setInput('');
-
     socketRef.current.emit('stop_typing', { to: activeChat });
+
+    setInput('');
     isTypingRef.current = false;
     typingToRef.current = null;
   };
 
-  // ================= RENDER =================
+  // ================= UI =================
+  if (!activeChat) {
+    return <div className="conversation-area no-chat-wrapper">Select a chat</div>;
+  }
+
+  const chatMessages = messages[activeChat] || [];
+  const contact = users.find((u) => u.id === activeChat);
+  const isOnline = presence.onlineUsers.includes(activeChat);
+  const isTyping = presence.typingUsers.includes(activeChat);
+
   return (
     <div className="conversation-area">
       <div className="conversation-header">
         <h4>
-          {name}{' '}
-          {isOnline && <span className="online-dot">●</span>}{' '}
-          {isTyping && <em>Typing...</em>}
+          {contact?.firstName} {contact?.lastName}
+          {isOnline && <span className="online-dot">●</span>}
+          {isTyping && <em> Typing...</em>}
         </h4>
       </div>
 
       <div className="chat-body">
-        {chatMessages.map(msg => (
+        {chatMessages.map((msg) => (
           <div
-            key={msg.id}
-            className={`message ${
-              msg.from === user.id ? 'sent' : 'received'
-            }`}
+            key={msg._id}
+            className={`message ${msg.from === user.id ? 'sent' : 'received'}`}
           >
-            {msg.text}
-            {msg.from === user.id && msg.status === 'read' && (
-              <span className="seen-check">✔✔</span>
+            <span className="message-text">{msg.text}</span>
+
+            {msg.from === user.id && (
+              <span className="message-status">
+                {msg.status === 'sent' && '✔'}
+                {msg.status === 'delivered' && '✔✔'}
+                {msg.status === 'read' && <span className="read-dot" />}
+              </span>
             )}
           </div>
         ))}
@@ -240,11 +188,7 @@ function ConversationArea() {
       </div>
 
       <form className="chat-footer" onSubmit={handleSendMessage}>
-        <input
-          value={input}
-          onChange={handleInputChange}
-          placeholder="Type a message"
-        />
+        <input value={input} onChange={handleInputChange} />
         <button type="submit">Send</button>
       </form>
     </div>
