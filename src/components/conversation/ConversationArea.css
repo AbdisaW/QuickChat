@@ -8,6 +8,15 @@
   height: 100%;
 }
 
+.no-chat-wrapper {
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+
+}
+
+
 /* ===== Header ===== */
 .conversation-header {
   padding: 10px 14px;
@@ -55,14 +64,17 @@
   color: #111;
   border-top-left-radius: 6px;
 }
-.message-status{
+
+.message-status {
   font-size: 12px;
   margin-left: 6px;
   opacity: 0.7;
 
 }
+
 .message-status.read {
-  color: #4fc3f7; /* blue ticks */
+  color: #4fc3f7;
+  /* blue ticks */
   opacity: 1;
 }
 
@@ -119,12 +131,16 @@
 
 .read-dot {
   position: absolute;
-  bottom: 4px;      /* inside the bubble */
-  right: 6px;       /* inside the bubble */
-  width: 10px;      /* bigger than a dot */
+  bottom: 4px;
+  /* inside the bubble */
+  right: 6px;
+  /* inside the bubble */
+  width: 10px;
+  /* bigger than a dot */
   height: 10px;
   border-radius: 50%;
-  background-color: #00bba7;   /* your chosen powerful color */
+  background-color: #00bba7;
+  /* your chosen powerful color */
   box-shadow: 0 0 6px rgba(0, 187, 167, 0.6), 0 1px 2px rgba(0, 0, 0, 0.2);
   border: 1px solid #fff;
   animation: readPop 0.25s ease-out;
@@ -135,11 +151,9 @@
     transform: scale(0.5);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
   }
 }
-
-
-

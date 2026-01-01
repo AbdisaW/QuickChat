@@ -77,13 +77,17 @@ export const authApi = createApi({
       }),
     }),
 
-    uploadProfilePicture: builder.mutation<{ message: string; fileUrl: string }, FormData>({
+    uploadProfilePicture: builder.mutation<
+      { message: string; profilePicture: string },
+      FormData
+    >({
       query: (formData) => ({
         url: 'http://localhost:4000/api/profile/profile-picture',
         method: 'POST',
         body: formData,
       }),
     }),
+
 
     updateProfile: builder.mutation<LoginResponse, Partial<User>>({
       query: (body) => ({
@@ -112,5 +116,5 @@ export const {
   useLogoutMutation,
   useUploadProfilePictureMutation,
   useUpdateProfileMutation,
- useGetUsersQuery,
+  useGetUsersQuery,
 } = authApi;

@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from "react";
 import Button from "../ui/Button/Button";
 import InputField from "../ui/Input/InputField";
+import { getAvatarUrl } from '../../utils/avatar';
+
 import "./AccountSettings.css";
 import type { AppDispatch, RootState } from "../../store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,46 +14,51 @@ function AccountSettings() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // Controlled input states with default values
-  const [displayName, setDisplayName] = useState(user?.name || "");
+  // Local state for controlled inputs
+  const [displayName, setDisplayName] = useState(user?.firstName || "");
   const [status, setStatus] = useState(user?.status || "");
+  const [profilePicture, setProfilePicture] = useState(user?.profilePicture || "/default-avatar.png");
 
   const [uploadProfilePicture] = useUploadProfilePictureMutation();
 
-  // Update local state when user changes
   useEffect(() => {
     if (user) {
-      setDisplayName(user.name || "");
+      setDisplayName(user.firstName || "");
       setStatus(user.status || "");
+      setProfilePicture(user.profilePicture || "/default-avatar.png");
     }
   }, [user]);
 
-  // Open file picker
+
   const handleCameraClick = () => {
     fileInputRef.current?.click();
   };
 
-  // Handle profile picture upload
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-      const response = await uploadProfilePicture(formData).unwrap();
+  try {
+    const res = await uploadProfilePicture(formData).unwrap();
 
-      // Use `publicFileUrl` returned from backend
-      dispatch(updateUserProfile({ profilePicture: response.fileUrl }));
-    } catch (err) {
-      console.error("Upload failed:", err);
-    }
-  };
+    dispatch(updateUserProfile({
+      profilePicture: res.profilePicture,
+      avatarVersion: res.avatarVersion, 
+    }));
+
+  } catch (err) {
+    console.error("Upload failed:", err);
+  }
+};
+
+
 
   // Save display name and status
   const handleSave = () => {
-    dispatch(updateUserProfile({ name: displayName, status }));
+    dispatch(updateUserProfile({ firstName: displayName, status }));
   };
 
   return (
@@ -60,11 +67,13 @@ function AccountSettings() {
 
       <div className="profile-section">
         <img
-          src={user?.profilePicture || "/default-avatar.png"}
+          src={getAvatarUrl(user?.id, user?.avatarVersion)}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/default-avatar.png';
+          }}
           className="profile-avatar"
           alt="Profile"
         />
-
         <button className="camera-btn" onClick={handleCameraClick}>
           📸
           <input

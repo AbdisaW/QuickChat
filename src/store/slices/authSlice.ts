@@ -57,11 +57,13 @@ const authSlice = createSlice({
     },
 
     // Update user profile info (firstName, lastName, email, etc.)
-    updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
-    },
+    updateUserProfile: (state, action) => {
+      state.user = {
+        ...state.user,
+        ...action.payload,
+      };
+    }
+
   },
 });
 

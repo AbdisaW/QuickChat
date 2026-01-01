@@ -1,6 +1,7 @@
 import SearchIcon from '../../assets/images/icons/SearchIcon';
 import ChatItem from './ChatItem';
 import SettingsPage from '../settings/SettingsPage';
+
 import './ChatList.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -55,34 +56,43 @@ function ChatList({ activeMenu }: ChatListProps) {
         {/* Chats */}
         {activeMenu === 'chats' &&
           threads.map((thread: ChatThread) => {
-            const contact = users?.find(u => u.id === thread.participantId) || allUsers?.find(u => u.id === thread.participantId);
+            const contact =
+              users?.find(u => u.id === thread.participantId) ||
+              allUsers?.find(u => u.id === thread.participantId);
+
+            if (!contact) return null;
+
             return (
               <ChatItem
                 key={thread.id}
-                avatar={contact?.profilePicture || '/default-avatar.png'}
-                name={getUserFullName(contact)}
+                userId={contact.id}
+                updatedAt={contact.updatedAt}
+                name={`${contact.firstName} ${contact.lastName}`}
                 lastMessage={thread.lastMessage || ''}
-                time={thread.lastMessageTime}
-                unreadCount={thread.unreadCount || 0}
-                isActive={activeChat === thread.id}
-                onClick={() => handleClick(thread.participantId!)}
+                isActive={activeChat === thread.participantId}
+                onClick={() => handleClick(contact.id)}
               />
             );
           })}
 
+
         {/* Contacts */}
         {activeMenu === 'contacts' &&
-          (allUsers || []).filter(u => u.id !== currentUser?.id).map(user => (
-            <ChatItem
-              key={user.id}
-              avatar={user.profilePicture || '/default-avatar.png'}
-              name={getUserFullName(user)}
-              lastMessage=""
-              time=""
-              isActive={activeChat === user.id}
-              onClick={() => handleClick(user.id)}
-            />
-          ))}
+          (allUsers || [])
+            .filter(u => u.id !== currentUser?.id)
+            .map(user => (
+              <ChatItem
+                key={user.id}
+                userId={user.id}
+                updatedAt={user.updatedAt}
+                name={`${user.firstName} ${user.lastName}`}
+                lastMessage=""
+                isActive={activeChat === user.id}
+                onClick={() => handleClick(user.id)}
+              />
+            ))}
+
+
       </div>
     </div>
   );

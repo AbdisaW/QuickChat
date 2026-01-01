@@ -36,7 +36,6 @@ function ConversationArea() {
   const typingToRef = useRef<string | null>(null);
   const isTypingRef = useRef(false);
 
-  // ================= SOCKET INIT =================
   useEffect(() => {
     if (!user || !token) return;
 
@@ -47,7 +46,6 @@ function ConversationArea() {
 
     socketRef.current = socket;
 
-    // PRESENCE
     socket.on('online_users', (users: string[]) => {
       dispatch(resetPresence());
       users.forEach((id) => dispatch(userOnline(id)));
@@ -56,16 +54,13 @@ function ConversationArea() {
     socket.on('user_online', (id: string) => dispatch(userOnline(id)));
     socket.on('user_offline', (id: string) => dispatch(userOffline(id)));
 
-    // TYPING
     socket.on('typing', ({ from }) => dispatch(setTyping(from)));
     socket.on('stop_typing', ({ from }) => dispatch(clearTyping(from)));
 
-    // RECEIVE MESSAGE
     socket.on('receive_message', (msg: Message) => {
       dispatch(addMessage({ chatId: msg.conversationId, message: msg }));
     });
 
-    // MESSAGE STATUS UPDATE (delivered / read)
     socket.on('message_seen', ({ chatId, messageId }) => {
       dispatch(
         updateMessageStatus({
@@ -82,7 +77,6 @@ function ConversationArea() {
     };
   }, [user, token, dispatch]);
 
-  // ================= MARK READ ON CHAT OPEN =================
   useEffect(() => {
     if (!socketRef.current || !activeChat || !user) return;
 
@@ -105,12 +99,10 @@ function ConversationArea() {
     });
   }, [activeChat, messages, user, dispatch]);
 
-  // ================= AUTO SCROLL =================
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, activeChat]);
 
-  // ================= INPUT =================
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
     if (!socketRef.current || !activeChat) return;
@@ -130,7 +122,6 @@ function ConversationArea() {
     }, 800);
   };
 
-  // ================= SEND =================
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !socketRef.current || !activeChat) return;
@@ -147,7 +138,6 @@ function ConversationArea() {
     typingToRef.current = null;
   };
 
-  // ================= UI =================
   if (!activeChat) {
     return <div className="conversation-area no-chat-wrapper">Select a chat</div>;
   }
